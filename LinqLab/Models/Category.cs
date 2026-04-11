@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LinqLab
+﻿namespace LinqLab.Models
 {
     internal class Category
     {
