@@ -5,11 +5,6 @@ namespace LinqLab.Models
 {
     internal class StoreContext : DbContext
     {
-        private static IConfiguration _config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
-            .Build();
-
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Customer> Customers { get; set; }
@@ -23,9 +18,8 @@ namespace LinqLab.Models
 
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public StoreContext(DbContextOptions<StoreContext> options) : base(options)
         {
-            optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,7 +27,7 @@ namespace LinqLab.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Electronics", Description = "Elektronik och tekniska produkter" },
-               new Category { Id = 2, Name = "Home & Kitchen", Description = "Produkter för hemmet och köket" },
+                new Category { Id = 2, Name = "Home & Kitchen", Description = "Produkter för hemmet och köket" },
                 new Category { Id = 3, Name = "Clothing", Description = "Kläder och accessoarer" },
                 new Category { Id = 4, Name = "Sports", Description = "Sportutrustning och träningsprodukter" },
                 new Category { Id = 5, Name = "Books", Description = "Böcker och litteratur" });
@@ -100,16 +94,7 @@ namespace LinqLab.Models
             new OrderDetail { Id = 14, OrderId = 9, ProductId = 6, Quantity = 1, UnitPrice = 1299 },
             new OrderDetail { Id = 15, OrderId = 9, ProductId = 14, Quantity = 2, UnitPrice = 799 },
             new OrderDetail { Id = 16, OrderId = 10, ProductId = 6, Quantity = 1, UnitPrice = 1299 }
-
-
-
             );
-
-
-
-
-
         }
-
     }
 }
