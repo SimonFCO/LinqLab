@@ -18,8 +18,12 @@ namespace LinqLab.Models
 
         }
 
-        public StoreContext(DbContextOptions<StoreContext> options) : base(options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {              
+                optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=LinqLabDb;Trusted_Connection=True;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
