@@ -43,7 +43,7 @@ namespace LinqLab
 
                 foreach (var currentSupplier in suppliers)
                 {
-                    Console.WriteLine($"\n" + @"System\>Supplier: {currentSupplier.Name}");
+                    Console.WriteLine($"\n" + @"System\>Supplier: " + currentSupplier.Name);
 
                     foreach (var product in currentSupplier.Products)
                     {
@@ -61,7 +61,13 @@ namespace LinqLab
         {
             using (var ctx = new StoreContext())
             {
-               
+                var MonthAgo = DateTime.Now.AddMonths(-1);
+                var DetailsThisMonth = ctx.OrderDetails
+                   .Where(od => od.Order.OrderDate >= MonthAgo)
+                   .Sum(od => od.Quantity * od.UnitPrice);
+
+                Console.WriteLine(DetailsThisMonth.ToString());
+
             }
         }
 
