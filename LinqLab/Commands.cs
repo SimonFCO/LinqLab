@@ -1,4 +1,5 @@
 ﻿using LinqLab.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -33,8 +34,27 @@ namespace LinqLab
         {
             using (var ctx = new StoreContext())
             {
-               
+                ctx.Database.EnsureCreated();
+
+                var suppliers = ctx.Suppliers
+                    .Include(s => s.Products)
+                    .Where(s => s.Products.Any(p => p.StockQuantity < 10))
+                    .ToList();
+
+                foreach (var currentSupplier in suppliers)
+                {
+                    Console.WriteLine($"\n" + @"System\>Supplier: {currentSupplier.Name}");
+
+                    foreach (var product in currentSupplier.Products)
+                    {
+                        if (product.StockQuantity < 10)
+                        {
+                            Console.WriteLine($"  - Product: {product.Name} (Stock: {product.StockQuantity})");
+                        }
+                    }
+                }
             }
+
         }
 
         public static void GetTotalOrderValueLastMonth()
