@@ -88,7 +88,6 @@ namespace LinqLab
                 foreach(var product in products)
                 {
                     Console.WriteLine($"Namn: {product.Name}, Antal Sålda: {product.TotalSold}");
-                    Console.WriteLine(product.TotalSold);
                 }
 
 
