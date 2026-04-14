@@ -5,6 +5,10 @@ namespace LinqLab.Models
 {
     internal class StoreContext : DbContext
     {
+        private static readonly IConfiguration _config = new ConfigurationBuilder()
+           .SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("appsettings.json")
+           .Build();
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Customer> Customers { get; set; }
@@ -20,10 +24,7 @@ namespace LinqLab.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {              
-                optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=LinqLabDb;Trusted_Connection=True;");
-            }
+            optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
