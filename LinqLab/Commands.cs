@@ -83,7 +83,21 @@ namespace LinqLab
         {
             using (var ctx = new StoreContext())
             {
-               
+                var categoryList = ctx.Categories
+                    .Select(c => new
+                    {
+                        c.Name,
+                        productCount = c.Products.Count()
+                        
+
+                    })
+                    .ToList();
+
+                Console.WriteLine("Alla kategorier");
+                foreach(var category in categoryList)
+                {
+                    Console.WriteLine($"Namn: {category.Name}, Antal: {category.productCount}");
+                }
             }
         }
 
@@ -91,7 +105,26 @@ namespace LinqLab
         {
             using (var ctx = new StoreContext())
             {
-               
+                var OrderLists = ctx.Orders
+                    .Include(s => s.OrderDetails)
+                        .ThenInclude(od => od.Product)
+                    .Include(s => s.Customer)
+                    .Where(od => od.TotalAmount > 1000)
+                    .ToList();
+
+                foreach (var order in OrderLists)
+                {
+                    Console.WriteLine($"Order-ID: {order.Id} | Belopp: {order.TotalAmount} kr");
+                    Console.WriteLine($"Kundnamn: {order.Customer.Name}");
+                    Console.WriteLine("Orderdetaljer:");
+
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        Console.WriteLine($"  - Produkt ID: {detail.ProductId}, Namn: {detail.Product.Name}, Antal: {detail.Quantity}");
+                    }
+
+                    Console.WriteLine("------------------------------------------------");
+                }
             }
         }
     }
