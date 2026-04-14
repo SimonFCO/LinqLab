@@ -75,7 +75,23 @@ namespace LinqLab
         {
             using (var ctx = new StoreContext())
             {
-                
+                var products = ctx.Products
+                    .Select(p => new
+                    {
+                        p.Name,
+                        TotalSold = p.OrderDetails.Sum(od => od.Quantity)
+                    })
+                    .OrderByDescending(p => p.TotalSold)
+                    .Take(3)
+                    .ToList();
+
+                foreach(var product in products)
+                {
+                    Console.WriteLine($"Namn: {product.Name}, Antal Sålda: {product.TotalSold}");
+                    Console.WriteLine(product.TotalSold);
+                }
+
+
             }
         }
 
