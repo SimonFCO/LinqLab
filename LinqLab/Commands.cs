@@ -8,11 +8,17 @@ namespace LinqLab
 {
     internal class Commands
     {
+        public static void UpdateMigrate()
+        {
+            using (var ctx = new StoreContext())
+            {
+                ctx.Database.Migrate();
+            }
+        }
         public static void GetElectronics()
         {
             using (var ctx = new StoreContext())
             {
-                ctx.Database.EnsureCreated();
                 var Electronics = ctx.Products
                     .Where(p => p.Category.Name == "Electronics")
                     .OrderByDescending(p => p.Price)
@@ -34,8 +40,6 @@ namespace LinqLab
         {
             using (var ctx = new StoreContext())
             {
-                ctx.Database.EnsureCreated();
-
                 var suppliers = ctx.Suppliers
                     .Include(s => s.Products)
                     .Where(s => s.Products.Any(p => p.StockQuantity < 10))

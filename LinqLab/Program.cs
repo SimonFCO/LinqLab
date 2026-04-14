@@ -15,6 +15,7 @@ namespace LinqLab
     {
         static void Main(string[] args)
         {
+            Commands.UpdateMigrate();
             Menu.RunProgram();
         }
     }
