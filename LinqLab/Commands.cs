@@ -36,7 +36,7 @@ namespace LinqLab
             }
         }
 
-        public static void GetSuppliersLess10()
+        public static void GetSuppliersWithLess10Products()
         {
             using (var ctx = new StoreContext())
             {
@@ -70,7 +70,7 @@ namespace LinqLab
                    .Where(od => od.Order.OrderDate >= MonthAgo)
                    .Sum(od => od.Quantity * od.UnitPrice);
 
-                Console.WriteLine(DetailsThisMonth.ToString());
+                Console.WriteLine($"Order Value (1 month timespan): {DetailsThisMonth.ToString()}");
 
             }
         }
@@ -125,10 +125,10 @@ namespace LinqLab
             using (var ctx = new StoreContext())
             {
                 var OrderLists = ctx.Orders
-                    .Include(s => s.OrderDetails)
+                    .Include(o => o.OrderDetails)
                         .ThenInclude(od => od.Product)
-                    .Include(s => s.Customer)
-                    .Where(od => od.TotalAmount > 1000)
+                    .Include(o => o.Customer)
+                    .Where(o => o.TotalAmount > 1000)
                     .ToList();
 
                 foreach (var order in OrderLists)
@@ -144,6 +144,32 @@ namespace LinqLab
 
                     Console.WriteLine("------------------------------------------------");
                 }
+            }
+        }
+
+        public static void Test()
+        {
+            using (var ctx = new StoreContext())
+            {
+                var test = ctx.Customers
+                    .Where(n =>  n.Name == "Anders Svensson")
+                    .Select(c => new
+                    {
+                        c.Name,
+                        c.Email,
+                        c.Address
+                    });
+
+                var test2 = ctx.Customers
+                    .Any(n => n.Name == "Anders Svensson");
+                    
+
+                foreach (var person in test)
+                {
+                    Console.WriteLine($"Name: {person.Name}, Email: {person.Email}, Address: {person.Address}");
+                }
+
+                Console.WriteLine(test2);
             }
         }
     }

@@ -19,7 +19,8 @@ namespace LinqLab
                 Console.WriteLine("4. Hitta de 3 mest sålda produkterna baserat på OrderDetail-data");
                 Console.WriteLine("5. Lista alla kategorier och antalet produkter i varje kategori");
                 Console.WriteLine("6. Hämta alla ordrar med tillhörande kunduppgifter och orderdetaljer där totalbeloppet överstiger 1000 kr");
-                Console.WriteLine("7. Avsluta programmet");
+                Console.WriteLine("7. Test");
+                Console.WriteLine("8. Avsluta programmet");
 
                 int answer;
                 while (!int.TryParse(Console.ReadLine(), out answer))
@@ -36,7 +37,7 @@ namespace LinqLab
                         WaitForKey();
                         break;
                     case 2:
-                        Commands.GetSuppliersLess10();
+                        Commands.GetSuppliersWithLess10Products();
                         WaitForKey();
                         break;
                     case 3:
@@ -56,6 +57,10 @@ namespace LinqLab
                         WaitForKey();
                         break;
                     case 7:
+                        Commands.Test();
+                        WaitForKey();
+                        break;
+                    case 8:
                         Console.WriteLine("Avslutar programmet...");
                         running = false;
                         break;
