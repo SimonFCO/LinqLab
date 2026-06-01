@@ -61,22 +61,77 @@ namespace LinqLab
 
         public void GetTotalOrderValueLastMonth()
         {
+            DateTime oneMonthAgo = DateTime.Now.AddMonths(-1); // tog mig för lång tid att göra labben så en månad sedan är för lite och ger inga result :(
 
+            var TotalOrderPrice = _ctx.Orders
+                .Where(o => o.OrderDate >=  oneMonthAgo)
+                .Sum(o => o.TotalAmount);
+
+            Console.WriteLine("Total Order Price for the last month");
+            Console.WriteLine(TotalOrderPrice);
+                
         }
 
         public void GetTop3BestSellingProducts()
         {
+            var Best3Sellers = _ctx.Products
+                .Select(p => new
+                {
+                    p.Name,
+                    TotalAmmountSold = p.OrderDetails.Sum(od => od.Quantity)
+                })
+                .OrderByDescending(p => p.TotalAmmountSold)
+                .Take(3)
+                .ToList();
+                            
 
+            Console.WriteLine($"1: {Best3Sellers[0].Name} | Sold: {Best3Sellers[0].TotalAmmountSold}");
+            Console.WriteLine($"2: {Best3Sellers[1].Name} | Sold: {Best3Sellers[1].TotalAmmountSold}");
+            Console.WriteLine($"3: {Best3Sellers[2].Name} | Sold: {Best3Sellers[2].TotalAmmountSold}");
         }
 
         public void GetCategoriesWithProductCount()
         {
+            var Catagories = _ctx.Categories
+                .Select(c => new
+                {
+                    c.Name,
+                    ProductAmmount = c.Products.Count()
+                })
+                .ToList();
 
-        }
+            foreach ( var catagory in Catagories )
+            {
+                Console.WriteLine($"Catagory: {catagory.Name} | Product Ammount: {catagory.ProductAmmount}");
+            }
+          }
 
         public void GetHighValueOrdersWithDetails()
         {
+            var RichOrders = _ctx.Orders
+                .Where(o => o.TotalAmount > 1000)
+                .Select(o => new
+                {
+                    name = o.Customer.Name,
+                    mail = o.Customer.Email,
+                    Total = o.TotalAmount,
+                    OrderDetails = o.OrderDetails.Select(od => new
+                    {
+                        od.Product.Name,
+                        od.Quantity,
+                        od.UnitPrice
+                    })
+                });
 
+            foreach(var order in RichOrders)
+            {
+                Console.WriteLine($"Customer: {order.name} | Mail: {order.mail} | Total Sum: {order.Total}");
+                foreach(var orderDetail in order.OrderDetails)
+                {
+                    Console.WriteLine($"--- Product Name: {orderDetail.Name} | Price: {orderDetail.UnitPrice} | Ammount: {orderDetail.Quantity}");
+                }
+                Console.WriteLine(" ");
+            }
         }
     }
 }
