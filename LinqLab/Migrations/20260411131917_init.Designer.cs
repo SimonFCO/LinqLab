@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LinqLab.Migrations
 {
-    [DbContext(typeof(StoreContext))]
+    [DbContext(typeof(StoreDbContext))]
     [Migration("20260411131917_init")]
     partial class init
     {

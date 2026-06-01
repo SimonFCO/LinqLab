@@ -12,7 +12,7 @@ namespace LinqLab.Models
 
         [Required]
         [EmailAddress] 
-        [MaxLength(150)]
+        [MaxLength(100)]
         public string Email { get; set; }
 
         [Phone] 
