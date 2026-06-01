@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using LinqLab.Models;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,9 @@ namespace LinqLab
     {
         public static void RunProgram()
         {
+            using var context = new StoreDbContext();
+            var commands = new Commands(context);
+
             bool running = true;
             while(running)
             {
@@ -32,27 +36,27 @@ namespace LinqLab
                 switch(answer)
                 {
                     case 1:
-                        Commands.GetElectronics();
+                        commands.GetElectronics();
                         WaitForKey();
                         break;
                     case 2:
-                        Commands.GetSuppliersLess10();
+                        commands.GetSuppliersWithLess10Products();
                         WaitForKey();
                         break;
                     case 3:
-                        Commands.GetTotalOrderValueLastMonth();
+                        commands.GetTotalOrderValueLastMonth();
                         WaitForKey();
                         break;
                     case 4:
-                        Commands.GetTop3BestSellingProducts();
+                        commands.GetTop3BestSellingProducts();
                         WaitForKey();
                         break;
                     case 5:
-                        Commands.GetCategoriesWithProductCount();
+                        commands.GetCategoriesWithProductCount();
                         WaitForKey();
                         break;
                     case 6:
-                        Commands.GetHighValueOrdersWithDetails();
+                        commands.GetHighValueOrdersWithDetails();
                         WaitForKey();
                         break;
                     case 7:

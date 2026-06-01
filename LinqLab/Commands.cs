@@ -3,149 +3,135 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace LinqLab
 {
     internal class Commands
     {
-        public static void UpdateMigrate()
+        private readonly StoreDbContext _ctx;
+        public Commands(StoreDbContext context)
         {
-            using (var ctx = new StoreContext())
-            {
-                ctx.Database.Migrate();
-            }
-        }
-        public static void GetElectronics()
-        {
-            using (var ctx = new StoreContext())
-            {
-                var Electronics = ctx.Products
-                    .Where(p => p.Category.Name == "Electronics")
-                    .OrderByDescending(p => p.Price)
-                    .Select(p => new
-                    {
-                        p.Name,
-                        p.Price
-                    });
-
-                Console.WriteLine(@"System\> All Electronic Products:");
-                foreach (var product in Electronics)
-                {
-                    Console.WriteLine($"{product.Name} {product.Price} SEK");
-                }
-            }
+            _ctx = context;
         }
 
-        public static void GetSuppliersLess10()
+        public void GetElectronics()
         {
-            using (var ctx = new StoreContext())
-            {
-                var suppliers = ctx.Suppliers
-                    .Include(s => s.Products)
-                    .Where(s => s.Products.Any(p => p.StockQuantity < 10))
-                    .ToList();
-
-                foreach (var currentSupplier in suppliers)
+            var Electronics = _ctx.Products
+                .Where(p => p.Category.Name == "Electronics")
+                .OrderByDescending(p => p.Price)
+                .Select(p => new
                 {
-                    Console.WriteLine($"\n" + @"System\>Supplier: " + currentSupplier.Name);
+                    p.Name,
+                    p.Price
+                });
 
-                    foreach (var product in currentSupplier.Products)
-                    {
-                        if (product.StockQuantity < 10)
-                        {
-                            Console.WriteLine($"  - Product: {product.Name} (Stock: {product.StockQuantity})");
-                        }
-                    }
+            foreach (var product in Electronics)
+            {
+                Console.WriteLine($"Name: {product.Name} | Price: {product.Price}");
+            }
+
+        }
+
+        public void GetSuppliersWithLess10Products()
+        {
+            var Suppliers = _ctx.Products
+                 .Where(p => p.StockQuantity < 10)
+                 .GroupBy(p => p.Supplier)
+                 .Select(g => new
+                 {
+                     g.Key.Name,
+                     products = g.Select(p => new
+                     {
+                         p.Name,
+                         p.StockQuantity
+                     })
+                 });
+
+            foreach(var supplier in Suppliers)
+            {
+                Console.WriteLine($"Supplier Name: {supplier.Name}");
+                foreach(var product in supplier.products)
+                {
+                    Console.WriteLine($"--- Product Name: {product.Name} | Quantity: {product.StockQuantity}");
                 }
             }
 
         }
 
-        public static void GetTotalOrderValueLastMonth()
+        public void GetTotalOrderValueLastMonth()
         {
-            using (var ctx = new StoreContext())
+            DateTime oneMonthAgo = DateTime.Now.AddMonths(-1); // tog mig för lång tid att göra labben så en månad sedan är för lite och ger inga result :(
+
+            var TotalOrderPrice = _ctx.Orders
+                .Where(o => o.OrderDate >=  oneMonthAgo)
+                .Sum(o => o.TotalAmount);
+
+            Console.WriteLine("Total Order Price for the last month");
+            Console.WriteLine(TotalOrderPrice);
+                
+        }
+
+        public void GetTop3BestSellingProducts()
+        {
+            var Best3Sellers = _ctx.Products
+                .Select(p => new
+                {
+                    p.Name,
+                    TotalAmmountSold = p.OrderDetails.Sum(od => od.Quantity)
+                })
+                .OrderByDescending(p => p.TotalAmmountSold)
+                .Take(3)
+                .ToList();
+
+            foreach (var product in Best3Sellers)
             {
-                var MonthAgo = DateTime.Now.AddMonths(-1);
-                var DetailsThisMonth = ctx.OrderDetails
-                   .Where(od => od.Order.OrderDate >= MonthAgo)
-                   .Sum(od => od.Quantity * od.UnitPrice);
-
-                Console.WriteLine(DetailsThisMonth.ToString());
-
+                Console.WriteLine($"Namn: {product.Name}, Antal Sålda: {product.TotalAmmountSold}");
             }
         }
 
-        public static void GetTop3BestSellingProducts()
+        public void GetCategoriesWithProductCount()
         {
-            using (var ctx = new StoreContext())
+            var Catagories = _ctx.Categories
+                .Select(c => new
+                {
+                    c.Name,
+                    ProductAmmount = c.Products.Count()
+                })
+                .ToList();
+
+            foreach ( var catagory in Catagories )
             {
-                var products = ctx.Products
-                    .Select(p => new
+                Console.WriteLine($"Catagory: {catagory.Name} | Product Ammount: {catagory.ProductAmmount}");
+            }
+          }
+
+        public void GetHighValueOrdersWithDetails()
+        {
+            var RichOrders = _ctx.Orders
+                .Where(o => o.TotalAmount > 1000)
+                .Select(o => new
+                {
+                    name = o.Customer.Name,
+                    mail = o.Customer.Email,
+                    Total = o.TotalAmount,
+                    OrderDetails = o.OrderDetails.Select(od => new
                     {
-                        p.Name,
-                        TotalSold = p.OrderDetails.Sum(od => od.Quantity)
+                        od.Product.Name,
+                        od.Quantity,
+                        od.UnitPrice
                     })
-                    .OrderByDescending(p => p.TotalSold)
-                    .Take(3)
-                    .ToList();
+                });
 
-                foreach(var product in products)
-                {
-                    Console.WriteLine($"Namn: {product.Name}, Antal Sålda: {product.TotalSold}");
-                }
-
-
-            }
-        }
-
-        public static void GetCategoriesWithProductCount()
-        {
-            using (var ctx = new StoreContext())
+            foreach(var order in RichOrders)
             {
-                var categoryList = ctx.Categories
-                    .Select(c => new
-                    {
-                        c.Name,
-                        productCount = c.Products.Count()
-                        
-
-                    })
-                    .ToList();
-
-                Console.WriteLine("Alla kategorier");
-                foreach(var category in categoryList)
+                Console.WriteLine($"Customer: {order.name} | Mail: {order.mail} | Total Sum: {order.Total}");
+                foreach(var orderDetail in order.OrderDetails)
                 {
-                    Console.WriteLine($"Namn: {category.Name}, Antal: {category.productCount}");
+                    Console.WriteLine($"--- Product Name: {orderDetail.Name} | Price: {orderDetail.UnitPrice} | Ammount: {orderDetail.Quantity}");
                 }
-            }
-        }
-
-        public static void GetHighValueOrdersWithDetails()
-        {
-            using (var ctx = new StoreContext())
-            {
-                var OrderLists = ctx.Orders
-                    .Include(s => s.OrderDetails)
-                        .ThenInclude(od => od.Product)
-                    .Include(s => s.Customer)
-                    .Where(od => od.TotalAmount > 1000)
-                    .ToList();
-
-                foreach (var order in OrderLists)
-                {
-                    Console.WriteLine($"Order-ID: {order.Id} | Belopp: {order.TotalAmount} kr");
-                    Console.WriteLine($"Kundnamn: {order.Customer.Name}");
-                    Console.WriteLine("Orderdetaljer:");
-
-                    foreach (var detail in order.OrderDetails)
-                    {
-                        Console.WriteLine($"  - Produkt ID: {detail.ProductId}, Namn: {detail.Product.Name}, Antal: {detail.Quantity}");
-                    }
-
-                    Console.WriteLine("------------------------------------------------");
-                }
+                Console.WriteLine(" ");
             }
         }
     }
 }
-

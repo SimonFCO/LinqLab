@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace LinqLab.Models
 {
-    internal class StoreContext : DbContext
+    internal class StoreDbContext : DbContext
     {
         private static readonly IConfiguration _config = new ConfigurationBuilder()
            .SetBasePath(Directory.GetCurrentDirectory())
@@ -17,7 +17,7 @@ namespace LinqLab.Models
         public DbSet<Product> Products { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
 
-        public StoreContext()
+        public StoreDbContext()
         {
 
         }
