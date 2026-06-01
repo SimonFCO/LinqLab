@@ -83,11 +83,11 @@ namespace LinqLab
                 .OrderByDescending(p => p.TotalAmmountSold)
                 .Take(3)
                 .ToList();
-                            
 
-            Console.WriteLine($"1: {Best3Sellers[0].Name} | Sold: {Best3Sellers[0].TotalAmmountSold}");
-            Console.WriteLine($"2: {Best3Sellers[1].Name} | Sold: {Best3Sellers[1].TotalAmmountSold}");
-            Console.WriteLine($"3: {Best3Sellers[2].Name} | Sold: {Best3Sellers[2].TotalAmmountSold}");
+            foreach (var product in Best3Sellers)
+            {
+                Console.WriteLine($"Namn: {product.Name}, Antal Sålda: {product.TotalAmmountSold}");
+            }
         }
 
         public void GetCategoriesWithProductCount()
